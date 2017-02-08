@@ -1,0 +1,6 @@
+framework module FOTask {
+  umbrella header "FOTask-umbrella.h"
+
+  export *
+  module * { export * }
+}
