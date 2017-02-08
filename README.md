@@ -113,6 +113,7 @@ pod "FOTask"
 
 ## Coming soon
 
+* An explanatory Medium post
 * More documentation
 * More examples
 * More functional features?
