@@ -9,6 +9,7 @@
 
 FOTask is a microframework (less than 100 LOCs), with a single objective in mind: **separation of concerns**. 
 Every subclass of `Task` executes an action. 
+`Task`s can be composed in more complex `Task`s, or parallelized without effort.
 
 ## Example usage
 
