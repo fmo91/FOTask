@@ -109,3 +109,20 @@ public extension Task {
         }
     }
 }
+
+public extension Task {
+    public func map<C>(_ f: @escaping (B) -> C) -> Task<A, C> {
+        return BasicTask<A, C> { (input: A) in
+            return { (onSuccess: @escaping (C) -> Void, onError: @escaping (Error) -> Void) in
+                self.perform(input,
+                    onSuccess: { (output: B) in
+                        onSuccess(f(output))
+                    },
+                    onError: { (error: Error) in
+                        onError(error)
+                    }
+                )
+            }
+        }
+    }
+}
