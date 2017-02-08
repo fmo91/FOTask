@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FOTask'
-  s.version          = '0.1.0'
+  s.version          = '0.2.0'
   s.summary          = 'Object oriented Swift tasks microframework with concurrency and composition.'
 
 # This description is used to generate tags and improve search results.

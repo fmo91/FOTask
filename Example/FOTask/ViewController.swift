@@ -63,7 +63,7 @@ class ViewController: UIViewController {
                 GetUserName(),
                 GetUserName()
             ],
-            reduce: { (userNames: [String]) -> [String] in
+            reduceBy: { (userNames: [String]) -> [String] in
                 return userNames
             }
         )

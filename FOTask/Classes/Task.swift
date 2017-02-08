@@ -71,7 +71,7 @@ public func => <A, B, C> (left: Task<A, B>, right: Task<B, C>) -> Task<A, C> {
 }
 
 public extension Task {
-    public static func parallel<C>(_ tasks: [Task<A, B>], on queue: DispatchQueue = .main, reduce: @escaping ([B]) -> C) -> Task<A, C> {
+    public static func parallel<C>(_ tasks: [Task<A, B>], on queue: DispatchQueue = .main, reduceBy reduce: @escaping ([B]) -> C) -> Task<A, C> {
         return BasicTask<A, C> { (input: A) in
             return { (onSuccess: @escaping (C) -> Void, onError: @escaping (Error) -> Void) in
                 let group = DispatchGroup()
@@ -108,10 +108,58 @@ public extension Task {
             }
         }
     }
+    
+    public func inParallel<U, V>(with task: Task<A, U>, on queue: DispatchQueue = .main, reduceBy reduce: @escaping (B, U) -> V) -> Task<A, V> {
+        return BasicTask<A, V> { (input: A) in
+            return { (onSuccess: @escaping (V) -> Void, onError: @escaping (Error) -> Void) in
+                let group = DispatchGroup()
+                
+                group.enter()
+                group.enter()
+                
+                var firstValue: B!
+                var secondValue: U!
+                
+                self.perform(input,
+                    onSuccess: { (output: B) in
+                        firstValue = output
+                        group.leave()
+                    },
+                    onError: { (error: Error) in
+                        onError(error)
+                        return
+                    }
+                )
+                
+                task.perform(input,
+                    onSuccess: { (output: U) in
+                        secondValue = output
+                        group.leave()
+                    },
+                    onError: { (error: Error) in
+                        onError(error)
+                        return
+                    }
+                )
+                
+                DispatchQueue.global(qos: .background).async {
+                    let dispatchGroupResult = group.wait(timeout: .distantFuture)
+                    queue.async {
+                        switch dispatchGroupResult {
+                        case .success:
+                            onSuccess(reduce(firstValue, secondValue))
+                        case .timedOut:
+                            onError(TaskError.timeout)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 public extension Task {
-    public func map<C>(_ f: @escaping (B) -> C) -> Task<A, C> {
+     public func map<C>(_ f: @escaping (B) -> C) -> Task<A, C> {
         return BasicTask<A, C> { (input: A) in
             return { (onSuccess: @escaping (C) -> Void, onError: @escaping (Error) -> Void) in
                 self.perform(input,
