@@ -16,8 +16,8 @@ Every subclass of `Task` executes an action.
 **Suclassing Task:**
 
 ```swift
-final class GetUserTask<Int, Task> {
-	override func perform(_ input: Int, onSuccess: @escaping (String) -> Void, onError: @escaping (Error) -> Void) {
+final class GetUserTask: Task<Int, User> {
+	override func perform(_ input: Int, onSuccess: @escaping (User) -> Void, onError: @escaping (Error) -> Void) {
 		ApiClient("https://somecoolapi.com/users/\(input)", .get,
         	onSuccess: { (json: Any) in
             	onSuccess(User(json: json))
